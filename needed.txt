@@ -1,0 +1,33 @@
+Admin
+- Manage Quiz (Done, can add features)
+- Manage Activity (Done, can add features)
+- Manage Videos (Done, can add features)
+- Manage Worksheets (Done, can add features)
+- Manage Library
+- Announcement
+- Contact Us
+
+Student
+- Can View
+
+Other:
+- Homepage (Done, can add features)
+- Database (Connected, can be update anytime)
+
+Recommendations:
+- Manage Quiz, add feature were when time is done, it will turn red as the date of end of activity is done and no one can now access except only admin.
+- Add text shadows to all of the text
+
+FIX:
+
+command:
+we will do the library management, but this time it is the same as video but its a full of books.
+
+So, the admin will fill this
+* Title of book
+* Description
+* Grade
+* Upload pdf
+* Picture (optional)
+
+so in the view thingy you will show the picture if they uploaded it, and if not, just put no picture

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Manage Videos</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_videos.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('video_library') }}" class="back-btn">📚 Video Library</a>
+            <a href="{{ url_for('homepage') }}" class="back-btn">🏠 Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">
+            <h2>🎥 Upload Video</h2>
+            <p>Upload educational videos for your students</p>
+        </div>
+
+        <div class="upload-container">
+            <div class="upload-form">
+                <form action="{{ url_for('upload_video') }}" method="POST" enctype="multipart/form-data" id="videoForm">
+                    <div class="form-group">
+                        <label for="video_file">Upload Video:</label>
+                        <div class="file-upload-container">
+                            <input type="file" id="video_file" name="video_file" accept="video/*" required>
+                            <label for="video_file" class="file-upload-label">
+                                <div class="upload-icon">📁</div>
+                                <div class="upload-text">Choose Video File</div>
+                                <div class="upload-subtext">Any video format accepted</div>
+                            </label>
+                            <div class="file-info" id="fileInfo" style="display: none;">
+                                <div class="file-name" id="fileName"></div>
+                                <div class="file-size" id="fileSize"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">Video Title:</label>
+                        <input type="text" id="title" name="title" required placeholder="Enter video title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="4" placeholder="Enter video description, learning objectives, or additional notes..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade">Grade:</label>
+                        <select id="grade" name="grade" required>
+                            <option value="">Select Grade Level</option>
+                            <option value="Grade 7">Grade 7</option>
+                            <option value="Grade 8">Grade 8</option>
+                            <option value="Grade 9">Grade 9</option>
+                            <option value="Grade 10">Grade 10</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                            <option value="ALS 11">ALS 11</option>
+                            <option value="ALS 12">ALS 12</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="btn-text">🚀 Upload Video</span>
+                        <span class="loading-text" style="display: none;">⏳ Uploading...</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // File upload preview
+        document.getElementById('video_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileInfo = document.getElementById('fileInfo');
+            const fileName = document.getElementById('fileName');
+            const fileSize = document.getElementById('fileSize');
+            const uploadText = document.querySelector('.upload-text');
+            const uploadSubtext = document.querySelector('.upload-subtext');
+
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                fileInfo.style.display = 'block';
+                uploadText.textContent = 'Change Video File';
+                uploadSubtext.textContent = 'Click to select different video';
+            } else {
+                fileInfo.style.display = 'none';
+                uploadText.textContent = 'Choose Video File';
+                uploadSubtext.textContent = 'Any video format accepted';
+            }
+        });
+
+        // Form submission with loading state
+        document.getElementById('videoForm').addEventListener('submit', function() {
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.querySelector('.btn-text');
+            const loadingText = document.querySelector('.loading-text');
+
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loadingText.style.display = 'inline';
+
+            // Update loading message for large files
+            setTimeout(function() {
+                if (submitBtn.disabled) {
+                    loadingText.textContent = '⏳ Processing large file, please wait...';
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>

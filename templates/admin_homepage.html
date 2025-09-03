@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Homepage</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/homepage.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="user-section">
+            <span class="welcome-text">Welcome, {{ session.username }}!</span>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-banner">
+            <h2>🎯 Admin Dashboard</h2>
+            <p>Manage your NTVHS Portal and quiz system efficiently</p>
+        </div>
+
+        <div class="dashboard-grid">
+            <div class="dashboard-card">
+                <div class="card-icon">📚</div>
+                <div class="card-title">Quiz Management</div>
+                <div class="card-description">Create, edit, and manage quizzes for students. Set up questions, time limits, and grading criteria.</div>
+                <a href="{{ url_for('manage_quizzes') }}" class="card-button">Manage Quizzes</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">🎯</div>
+                <div class="card-title">Activity Management</div>
+                <div class="card-description">Create and manage interactive activities for students. Design engaging educational tasks and assignments.</div>
+                <a href="{{ url_for('manage_activities') }}" class="card-button">Manage Activities</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">📖</div>
+                <div class="card-title">Library Management</div>
+                <div class="card-description">Organize digital library resources, books, and reading materials for different grade levels.</div>
+                <a href="#" class="card-button">Manage Library</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">🎥</div>
+                <div class="card-title">Video Management</div>
+                <div class="card-description">Upload, organize, and manage educational videos and multimedia content for students.</div>
+                <a href="{{ url_for('video_library') }}" class="card-button">Manage Videos</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">📄</div>
+                <div class="card-title">Worksheet Management</div>
+                <div class="card-description">Create and distribute worksheets, practice exercises, and printable materials for students.</div>
+                <a href="{{ url_for('manage_worksheets') }}" class="card-button">Manage Worksheets</a>
+            </div>
+
+            <div class="dashboard-card">
+                <div class="card-icon">📋</div>
+                <div class="card-title">Announcements</div>
+                <div class="card-description">Post important announcements, updates, and notifications for students and faculty.</div>
+                <a href="#" class="card-button">Manage Announcements</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

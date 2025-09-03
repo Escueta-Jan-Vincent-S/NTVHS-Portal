@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="left-section">
+            <div class="logo">
+                <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            </div>
+            <div class="welcome-text">
+                WELCOME<br>STUDENTS
+            </div>
+        </div>
+
+        <div class="right-section">
+            <div class="login-header">
+                <div class="brand-icons">
+                    <div class="icon">📚</div>
+                    <div class="icon">🌾</div>
+                    <div class="icon">📊</div>
+                    <div class="icon">⚙️</div>
+                </div>
+                <div class="brand-title">NTVHS Portal</div>
+                <div class="brand-subtitle">TECHNICAL • VOCATIONAL • NATIONAL</div>
+            </div>
+
+            <!-- Display flash messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flash-messages">
+                        {% for category, message in messages %}
+                            <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('handle_login') }}" method="POST">
+                <div class="form-group">
+                    <input type="text" name="username" class="form-input" placeholder="👤 Username" required>
+                </div>
+
+                <div class="form-group">
+                    <input type="password" name="password" class="form-input" placeholder="🔒 Password" required>
+                </div>
+
+                <button type="submit" class="login-btn">
+                    🚀 Login
+                </button>
+
+                <a href="#" class="student-link">Login as Student</a>
+            </form>
+
+            <div class="footer-text">
+                © 2025 Laguna State Polytechnic University
+            </div>
+        </div>
+    </div>
+</body>
+</html>

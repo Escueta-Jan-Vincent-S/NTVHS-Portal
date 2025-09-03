@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Edit Video</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_videos.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('video_library') }}" class="back-btn">📚 Video Library</a>
+            <a href="{{ url_for('homepage') }}" class="back-btn">🏠 Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">
+            <h2>✏️ Edit Video</h2>
+            <p>Update video information and settings</p>
+        </div>
+
+        <div class="upload-container">
+            <div class="upload-form">
+                <h3 style="text-align: center; margin-bottom: 1.5rem; color: #333;">📝 Edit: {{ video.title }}</h3>
+
+                <!-- Video Preview -->
+                <div class="video-preview" style="margin-bottom: 2rem;">
+                    <video width="100%" height="250" controls preload="metadata">
+                        <source src="{{ url_for('static', filename='videos/' + video.filename) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <!-- Download Button -->
+                    <div style="text-align: center; margin-top: 1rem;">
+                        <a href="{{ url_for('download_video', video_id=video.id) }}" class="download-btn">
+                            📥 Download Video
+                        </a>
+                    </div>
+                </div>
+
+                <form action="{{ url_for('update_video', video_id=video.id) }}" method="POST">
+                    <div class="form-group">
+                        <label for="title">Video Title:</label>
+                        <input type="text" id="title" name="title" value="{{ video.title }}" required placeholder="Enter video title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="4" placeholder="Enter video description, learning objectives, or additional notes...">{{ video.description or '' }}</textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade">Grade:</label>
+                        <select id="grade" name="grade" required>
+                            <option value="">Select Grade Level</option>
+                            <option value="Grade 7" {% if video.grade == 'Grade 7' %}selected{% endif %}>Grade 7</option>
+                            <option value="Grade 8" {% if video.grade == 'Grade 8' %}selected{% endif %}>Grade 8</option>
+                            <option value="Grade 9" {% if video.grade == 'Grade 9' %}selected{% endif %}>Grade 9</option>
+                            <option value="Grade 10" {% if video.grade == 'Grade 10' %}selected{% endif %}>Grade 10</option>
+                            <option value="Grade 11" {% if video.grade == 'Grade 11' %}selected{% endif %}>Grade 11</option>
+                            <option value="Grade 12" {% if video.grade == 'Grade 12' %}selected{% endif %}>Grade 12</option>
+                            <option value="ALS 11" {% if video.grade == 'ALS 11' %}selected{% endif %}>ALS 11</option>
+                            <option value="ALS 12" {% if video.grade == 'ALS 12' %}selected{% endif %}>ALS 12</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button type="submit" class="submit-btn" style="flex: 1;">💾 Update Video</button>
+                        <a href="{{ url_for('video_library') }}" class="submit-btn"
+                           style="flex: 1; background: #6c757d; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                           ❌ Cancel
+                        </a>
+                    </div>
+                </form>
+
+                <!-- Video Info -->
+                <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #667eea;">
+                    <h4 style="color: #333; margin-bottom: 0.5rem;">📋 Video Information</h4>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;"><strong>File:</strong> {{ video.filename }}</p>
+                    {% if video.file_size %}
+                        <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;"><strong>Size:</strong> {{ "%.1f"|format(video.file_size / 1024 / 1024) }} MB</p>
+                    {% endif %}
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;"><strong>Uploaded:</strong> {{ video.created_at }}</p>
+                    {% if video.updated_at %}
+                        <p style="color: #666; font-size: 0.9rem;"><strong>Last Updated:</strong> {{ video.updated_at }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

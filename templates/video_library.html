@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Video Library</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/video_library.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('manage_videos') }}" class="back-btn">📤 Upload Video</a>
+            <a href="{{ url_for('homepage') }}" class="back-btn">🏠 Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">
+            <h2>📚 Video Library</h2>
+            <p>Browse and manage educational videos by grade level</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-section">
+            <div class="search-container">
+                <form method="GET" action="{{ url_for('video_library') }}">
+                    <input type="text" name="search" placeholder="🔍 Search videos by title..." value="{{ request.args.get('search', '') }}" class="search-input">
+                    <button type="submit" class="search-btn">Search</button>
+                    {% if request.args.get('search') %}
+                        <a href="{{ url_for('video_library') }}" class="clear-btn">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- Grade Filter Tabs -->
+        <div class="grade-tabs">
+            <a href="{{ url_for('video_library') }}" class="grade-tab {% if not selected_grade %}active{% endif %}">All Grades</a>
+            <a href="{{ url_for('video_library', grade='Grade 7') }}" class="grade-tab {% if selected_grade == 'Grade 7' %}active{% endif %}">Grade 7</a>
+            <a href="{{ url_for('video_library', grade='Grade 8') }}" class="grade-tab {% if selected_grade == 'Grade 8' %}active{% endif %}">Grade 8</a>
+            <a href="{{ url_for('video_library', grade='Grade 9') }}" class="grade-tab {% if selected_grade == 'Grade 9' %}active{% endif %}">Grade 9</a>
+            <a href="{{ url_for('video_library', grade='Grade 10') }}" class="grade-tab {% if selected_grade == 'Grade 10' %}active{% endif %}">Grade 10</a>
+            <a href="{{ url_for('video_library', grade='Grade 11') }}" class="grade-tab {% if selected_grade == 'Grade 11' %}active{% endif %}">Grade 11</a>
+            <a href="{{ url_for('video_library', grade='Grade 12') }}" class="grade-tab {% if selected_grade == 'Grade 12' %}active{% endif %}">Grade 12</a>
+            <a href="{{ url_for('video_library', grade='ALS 11') }}" class="grade-tab {% if selected_grade == 'ALS 11' %}active{% endif %}">ALS 11</a>
+            <a href="{{ url_for('video_library', grade='ALS 12') }}" class="grade-tab {% if selected_grade == 'ALS 12' %}active{% endif %}">ALS 12</a>
+        </div>
+
+        <!-- Video Grid -->
+        <div class="videos-section">
+            {% if selected_grade %}
+                <h3 class="section-title">📽️ {{ selected_grade }} Videos</h3>
+            {% elif request.args.get('search') %}
+                <h3 class="section-title">🔍 Search Results for "{{ request.args.get('search') }}"</h3>
+            {% else %}
+                <h3 class="section-title">📽️ All Videos</h3>
+            {% endif %}
+
+            {% if videos %}
+                <div class="video-grid">
+                    {% for video in videos %}
+                    <div class="video-card">
+                        <div class="video-thumbnail">
+                            <video width="100%" height="200" preload="metadata" poster="">
+                                <source src="{{ url_for('static', filename='videos/' + video.filename) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                            <div class="play-overlay">
+                                <div class="play-button">▶</div>
+                            </div>
+                        </div>
+
+                        <div class="video-info">
+                            <h4 class="video-title">{{ video.title }}</h4>
+                            <span class="video-grade">{{ video.grade }}</span>
+
+                            {% if video.description %}
+                                <p class="video-description">
+                                    {{ video.description[:100] }}{% if video.description|length > 100 %}...{% endif %}
+                                </p>
+                            {% endif %}
+
+                            <div class="video-meta">
+                                <span class="video-date">📅 {{ video.created_at }}</span>
+                                {% if video.file_size %}
+                                    <span class="video-size">💾 {{ "%.1f"|format(video.file_size / 1024 / 1024) }} MB</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="video-actions">
+                                <a href="{{ url_for('static', filename='videos/' + video.filename) }}" target="_blank" class="btn-small btn-view">👁️ Watch</a>
+                                <a href="{{ url_for('download_video', video_id=video.id) }}" class="btn-small btn-download">📥 Download</a>
+                                <a href="{{ url_for('edit_video', video_id=video.id) }}" class="btn-small btn-edit">✏️ Edit</a>
+                                <a href="{{ url_for('delete_video', video_id=video.id) }}"
+                                   class="btn-small btn-delete"
+                                   onclick="return confirm('Are you sure you want to delete this video? This action cannot be undone.')">🗑️ Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-videos">
+                    {% if selected_grade %}
+                        <div class="no-videos-icon">🎥</div>
+                        <h3>No videos available for {{ selected_grade }}</h3>
+                        <p>No videos have been uploaded for this grade level yet.</p>
+                        <a href="{{ url_for('manage_videos') }}" class="upload-link">📤 Upload First Video</a>
+                    {% elif request.args.get('search') %}
+                        <div class="no-videos-icon">🔍</div>
+                        <h3>No videos found</h3>
+                        <p>No videos match your search criteria "{{ request.args.get('search') }}".</p>
+                        <a href="{{ url_for('video_library') }}" class="upload-link">📚 View All Videos</a>
+                    {% else %}
+                        <div class="no-videos-icon">🎥</div>
+                        <h3>No videos uploaded yet</h3>
+                        <p>Start building your video library by uploading your first educational video.</p>
+                        <a href="{{ url_for('manage_videos') }}" class="upload-link">📤 Upload First Video</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <script>
+        // Add click to play functionality for video thumbnails
+        document.querySelectorAll('.video-thumbnail').forEach(function(thumbnail) {
+            const video = thumbnail.querySelector('video');
+            const playOverlay = thumbnail.querySelector('.play-overlay');
+
+            thumbnail.addEventListener('click', function() {
+                if (video.paused) {
+                    video.play();
+                    playOverlay.style.display = 'none';
+                } else {
+                    video.pause();
+                    playOverlay.style.display = 'flex';
+                }
+            });
+
+            video.addEventListener('ended', function() {
+                playOverlay.style.display = 'flex';
+            });
+        });
+    </script>
+</body>
+</html>

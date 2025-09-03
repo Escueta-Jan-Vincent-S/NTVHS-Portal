@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Edit Activity</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_activity_quizzes_worksheets.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('manage_activities') }}" class="back-btn">🎯 Back to Activities</a>
+            <a href="{{ url_for('homepage') }}" class="back-btn">🏠 Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">
+            <h2>✏️ Edit Activity</h2>
+            <p>Update activity information and settings</p>
+        </div>
+
+        <div style="max-width: 600px; margin: 0 auto;">
+            <div class="form-section">
+                <h3>📝 Edit: {{ activity.name }}</h3>
+                <form action="{{ url_for('update_activity', activity_id=activity.id) }}" method="POST">
+                    <div class="form-group">
+                        <label for="name">Name of Activity:</label>
+                        <input type="text" id="name" name="name" value="{{ activity.name }}" required placeholder="Enter activity name">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade">Grade:</label>
+                        <select id="grade" name="grade" required>
+                            <option value="">Select Grade Level</option>
+                            <option value="Grade 7" {% if activity.grade == 'Grade 7' %}selected{% endif %}>Grade 7</option>
+                            <option value="Grade 8" {% if activity.grade == 'Grade 8' %}selected{% endif %}>Grade 8</option>
+                            <option value="Grade 9" {% if activity.grade == 'Grade 9' %}selected{% endif %}>Grade 9</option>
+                            <option value="Grade 10" {% if activity.grade == 'Grade 10' %}selected{% endif %}>Grade 10</option>
+                            <option value="Grade 11" {% if activity.grade == 'Grade 11' %}selected{% endif %}>Grade 11</option>
+                            <option value="Grade 12" {% if activity.grade == 'Grade 12' %}selected{% endif %}>Grade 12</option>
+                            <option value="ALS 11" {% if activity.grade == 'ALS 11' %}selected{% endif %}>ALS 11</option>
+                            <option value="ALS 12" {% if activity.grade == 'ALS 12' %}selected{% endif %}>ALS 12</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="end_date">Date of End of Activity <span class="optional-label">(Optional)</span>:</label>
+                        <input type="datetime-local" id="end_date" name="end_date" value="{{ activity.end_date }}" placeholder="Select end date and time">
+                        <small class="optional-label">Leave empty if no specific end date. Activity will remain active until manually removed.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="upload_link">Activity Link:</label>
+                        <input type="url" id="upload_link" name="upload_link" value="{{ activity.upload_link }}" required placeholder="https://example.com/activity-link">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="professor">Professor <span class="optional-label">(Optional)</span>:</label>
+                        <input type="text" id="professor" name="professor" value="{{ activity.professor or '' }}" placeholder="Enter professor/teacher name">
+                    </div>
+
+                    <div class="form-group">
+                        <div style="display: flex; gap: 1rem;">
+                            <button type="submit" class="submit-btn" style="flex: 1;">💾 Update Activity</button>
+                            <a href="{{ url_for('manage_activities') }}" class="submit-btn"
+                               style="flex: 1; background: #6c757d; text-align: center; text-decoration: none; display: flex; align-items: center; justify-content: center;">
+                               ❌ Cancel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Activity Info -->
+                <div style="margin-top: 2rem; padding: 1rem; background: #f8f9fa; border-radius: 8px; border-left: 4px solid #8BA49A;">
+                    <h4 style="color: #333; margin-bottom: 0.5rem;">📋 Activity Information</h4>
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;"><strong>Created:</strong> {{ activity.created_at }}</p>
+                    {% if activity.updated_at %}
+                        <p style="color: #666; font-size: 0.9rem;"><strong>Last Updated:</strong> {{ activity.updated_at }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
