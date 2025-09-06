@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Digital Library</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/library_books.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('manage_library') }}" class="back-btn">📤 Upload Book</a>
+            <a href="{{ url_for('homepage') }}" class="back-btn">🏠 Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">
+            <h2>📚 Digital Library</h2>
+            <p>Browse and manage educational books and resources by grade level</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-section">
+            <div class="search-container">
+                <form method="GET" action="{{ url_for('library_books') }}">
+                    <input type="text" name="search" placeholder="🔍 Search books by title..." value="{{ request.args.get('search', '') }}" class="search-input">
+                    <button type="submit" class="search-btn">Search</button>
+                    {% if request.args.get('search') %}
+                        <a href="{{ url_for('library_books') }}" class="clear-btn">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- Grade Filter Tabs -->
+        <div class="grade-tabs">
+            <a href="{{ url_for('library_books') }}" class="grade-tab {% if not selected_grade %}active{% endif %}">All Grades</a>
+            <a href="{{ url_for('library_books', grade='Grade 7') }}" class="grade-tab {% if selected_grade == 'Grade 7' %}active{% endif %}">Grade 7</a>
+            <a href="{{ url_for('library_books', grade='Grade 8') }}" class="grade-tab {% if selected_grade == 'Grade 8' %}active{% endif %}">Grade 8</a>
+            <a href="{{ url_for('library_books', grade='Grade 9') }}" class="grade-tab {% if selected_grade == 'Grade 9' %}active{% endif %}">Grade 9</a>
+            <a href="{{ url_for('library_books', grade='Grade 10') }}" class="grade-tab {% if selected_grade == 'Grade 10' %}active{% endif %}">Grade 10</a>
+            <a href="{{ url_for('library_books', grade='Grade 11') }}" class="grade-tab {% if selected_grade == 'Grade 11' %}active{% endif %}">Grade 11</a>
+            <a href="{{ url_for('library_books', grade='Grade 12') }}" class="grade-tab {% if selected_grade == 'Grade 12' %}active{% endif %}">Grade 12</a>
+            <a href="{{ url_for('library_books', grade='ALS 11') }}" class="grade-tab {% if selected_grade == 'ALS 11' %}active{% endif %}">ALS 11</a>
+            <a href="{{ url_for('library_books', grade='ALS 12') }}" class="grade-tab {% if selected_grade == 'ALS 12' %}active{% endif %}">ALS 12</a>
+        </div>
+
+        <!-- Books Grid -->
+        <div class="books-section">
+            {% if selected_grade %}
+                <h3 class="section-title">📖 {{ selected_grade }} Books</h3>
+            {% elif request.args.get('search') %}
+                <h3 class="section-title">🔍 Search Results for "{{ request.args.get('search') }}"</h3>
+            {% else %}
+                <h3 class="section-title">📖 All Books</h3>
+            {% endif %}
+
+            {% if books %}
+                <div class="books-grid">
+                    {% for book in books %}
+                    <div class="book-card">
+                        <div class="book-cover">
+                            {% if book.picture_filename %}
+                                <img src="{{ url_for('static', filename='library/pictures/' + book.picture_filename) }}" alt="{{ book.title }}" class="cover-image">
+                            {% else %}
+                                <div class="no-cover">
+                                    <div class="no-cover-icon">📚</div>
+                                    <div class="no-cover-text">No Picture</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="book-info">
+                            <h4 class="book-title">{{ book.title }}</h4>
+                            <span class="book-grade">{{ book.grade }}</span>
+
+                            {% if book.description %}
+                                <p class="book-description">
+                                    {{ book.description[:100] }}{% if book.description|length > 100 %}...{% endif %}
+                                </p>
+                            {% endif %}
+
+                            <div class="book-meta">
+                                <span class="book-date">📅 {{ book.created_at }}</span>
+                                {% if book.file_size %}
+                                    <span class="book-size">💾 {{ "%.1f"|format(book.file_size / 1024 / 1024) }} MB</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="book-actions">
+                                <a href="{{ url_for('static', filename='library/pdfs/' + book.pdf_filename) }}" target="_blank" class="btn-small btn-view">👁️ Read</a>
+                                <a href="{{ url_for('download_book', book_id=book.id) }}" class="btn-small btn-download">📥 Download</a>
+                                <a href="{{ url_for('edit_book', book_id=book.id) }}" class="btn-small btn-edit">✏️ Edit</a>
+                                <a href="{{ url_for('delete_book', book_id=book.id) }}"
+                                   class="btn-small btn-delete"
+                                   onclick="return confirm('Are you sure you want to delete this book? This action cannot be undone.')">🗑️ Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-books">
+                    {% if selected_grade %}
+                        <div class="no-books-icon">📚</div>
+                        <h3>No books available for {{ selected_grade }}</h3>
+                        <p>No books have been uploaded for this grade level yet.</p>
+                        <a href="{{ url_for('manage_library') }}" class="upload-link">📤 Upload First Book</a>
+                    {% elif request.args.get('search') %}
+                        <div class="no-books-icon">🔍</div>
+                        <h3>No books found</h3>
+                        <p>No books match your search criteria "{{ request.args.get('search') }}".</p>
+                        <a href="{{ url_for('library_books') }}" class="upload-link">📚 View All Books</a>
+                    {% else %}
+                        <div class="no-books-icon">📚</div>
+                        <h3>No books in library yet</h3>
+                        <p>Start building your digital library by uploading your first educational book.</p>
+                        <a href="{{ url_for('manage_library') }}" class="upload-link">📤 Upload First Book</a>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

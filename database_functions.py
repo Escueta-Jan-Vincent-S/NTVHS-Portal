@@ -48,33 +48,34 @@ def init_database():
 
         # Create videos table
         create_videos_table = """
-                              CREATE TABLE IF NOT EXISTS videos \
-                              ( \
-                                  id \
-                                  INT \
-                                  AUTO_INCREMENT \
-                                  PRIMARY \
-                                  KEY, \
-                                  title \
-                                  VARCHAR \
-                              ( \
-                                  255 \
-                              ) NOT NULL,
-                                  description TEXT NULL,
-                                  grade VARCHAR \
-                              ( \
-                                  50 \
-                              ) NOT NULL,
-                                  filename VARCHAR \
-                              ( \
-                                  255 \
-                              ) NOT NULL,
-                                  file_size BIGINT NULL,
-                                  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                                  updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
-                                  ) \
-                              """
+        CREATE TABLE IF NOT EXISTS videos (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT NULL,
+            grade VARCHAR(50) NOT NULL,
+            filename VARCHAR(255) NOT NULL,
+            file_size BIGINT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+        )
+        """
         cursor.execute(create_videos_table)
+
+        # Create library table
+        create_library_table = """
+        CREATE TABLE IF NOT EXISTS library (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            description TEXT NULL,
+            grade VARCHAR(50) NOT NULL,
+            pdf_filename VARCHAR(255) NOT NULL,
+            picture_filename VARCHAR(255) NULL,
+            file_size BIGINT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP NULL ON UPDATE CURRENT_TIMESTAMP
+        )
+        """
+        cursor.execute(create_library_table)
 
         connection.commit()
         print("Database and tables created successfully!")
@@ -102,7 +103,7 @@ def get_all_items(table_name):
             for item in items:
                 if item['created_at']:
                     item['created_at'] = item['created_at'].strftime("%Y-%m-%d %H:%M:%S")
-                if item['updated_at']:
+                if item.get('updated_at'):
                     item['updated_at'] = item['updated_at'].strftime("%Y-%m-%d %H:%M:%S")
                 if item.get('end_date'):
                     item['end_date'] = item['end_date'].strftime("%Y-%m-%dT%H:%M")
@@ -271,9 +272,9 @@ def add_video_to_db(video_data):
             cursor = connection.cursor()
 
             insert_query = """
-                           INSERT INTO videos (title, description, grade, filename, file_size)
-                           VALUES (%s, %s, %s, %s, %s) \
-                           """
+            INSERT INTO videos (title, description, grade, filename, file_size)
+            VALUES (%s, %s, %s, %s, %s)
+            """
 
             description = video_data['description'] if video_data['description'] else None
 
@@ -305,13 +306,10 @@ def update_video_in_db(video_id, video_data):
             cursor = connection.cursor()
 
             update_query = """
-                           UPDATE videos
-                           SET title       = %s, \
-                               description = %s, \
-                               grade       = %s, \
-                               updated_at  = CURRENT_TIMESTAMP
-                           WHERE id = %s \
-                           """
+            UPDATE videos
+            SET title = %s, description = %s, grade = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+            """
 
             description = video_data['description'] if video_data['description'] else None
 
@@ -398,3 +396,145 @@ def search_videos_by_title(title_query):
             connection.close()
 
     return videos
+
+
+# ==================== LIBRARY-SPECIFIC FUNCTIONS ====================
+def add_library_book_to_db(book_data):
+    """Add new book to library database"""
+    try:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+
+            insert_query = """
+            INSERT INTO library (title, description, grade, pdf_filename, picture_filename, file_size)
+            VALUES (%s, %s, %s, %s, %s, %s)
+            """
+
+            description = book_data['description'] if book_data['description'] else None
+            picture_filename = book_data.get('picture_filename', None)
+
+            cursor.execute(insert_query, (
+                book_data['title'],
+                description,
+                book_data['grade'],
+                book_data['pdf_filename'],
+                picture_filename,
+                book_data['file_size']
+            ))
+
+            connection.commit()
+            return True
+
+    except Error as e:
+        print(f"Error adding book: {e}")
+        return False
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+def update_library_book_in_db(book_id, book_data):
+    """Update book info in database (not files)"""
+    try:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor()
+
+            update_query = """
+            UPDATE library
+            SET title = %s, description = %s, grade = %s, updated_at = CURRENT_TIMESTAMP
+            WHERE id = %s
+            """
+
+            description = book_data['description'] if book_data['description'] else None
+
+            cursor.execute(update_query, (
+                book_data['title'],
+                description,
+                book_data['grade'],
+                book_id
+            ))
+
+            connection.commit()
+            return True
+
+    except Error as e:
+        print(f"Error updating book: {e}")
+        return False
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+def delete_library_book_from_db(book_id):
+    """Delete book from database and file system"""
+    try:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+
+            # Get book info first
+            cursor.execute("SELECT pdf_filename, picture_filename FROM library WHERE id = %s", (book_id,))
+            book = cursor.fetchone()
+
+            if book:
+                # Delete from database
+                cursor.execute("DELETE FROM library WHERE id = %s", (book_id,))
+                connection.commit()
+
+                # Delete files from file system
+                try:
+                    pdf_path = os.path.join('static/library/pdfs', book['pdf_filename'])
+                    if os.path.exists(pdf_path):
+                        os.remove(pdf_path)
+
+                    if book['picture_filename']:
+                        picture_path = os.path.join('static/library/pictures', book['picture_filename'])
+                        if os.path.exists(picture_path):
+                            os.remove(picture_path)
+                except Exception as e:
+                    print(f"Error deleting book files: {e}")
+
+                return True
+
+    except Error as e:
+        print(f"Error deleting book: {e}")
+        return False
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+
+def get_library_books_by_grade(grade):
+    """Get library books filtered by grade"""
+    return get_items_by_grade('library', grade)
+
+
+def search_library_books_by_title(title_query):
+    """Search library books by title"""
+    books = []
+    try:
+        connection = get_db_connection()
+        if connection:
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute("SELECT * FROM library WHERE title LIKE %s ORDER BY created_at DESC", (f'%{title_query}%',))
+            books = cursor.fetchall()
+
+            # Format datetime fields for display
+            for book in books:
+                if book['created_at']:
+                    book['created_at'] = book['created_at'].strftime("%Y-%m-%d %H:%M:%S")
+
+    except Error as e:
+        print(f"Error searching books: {e}")
+        flash('Error searching books', 'error')
+    finally:
+        if connection and connection.is_connected():
+            cursor.close()
+            connection.close()
+
+    return books

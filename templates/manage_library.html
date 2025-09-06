@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Manage Library</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/manage_library.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Portal</h1>
+                <p>Technical • Vocational • National</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('library_books') }}" class="back-btn">📚 View Library</a>
+            <a href="{{ url_for('homepage') }}" class="back-btn">🏠 Dashboard</a>
+            <a href="{{ url_for('logout') }}" class="logout-btn">🚪 Logout</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <!-- Display flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-messages">
+                    {% for category, message in messages %}
+                        <div class="flash-message flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="page-title">
+            <h2>📖 Upload Book</h2>
+            <p>Add educational books and resources to your digital library</p>
+        </div>
+
+        <div class="upload-container">
+            <div class="upload-form">
+                <form action="{{ url_for('upload_book') }}" method="POST" enctype="multipart/form-data" id="bookForm">
+                    <div class="form-group">
+                        <label for="pdf_file">Upload PDF Book:</label>
+                        <div class="file-upload-container">
+                            <input type="file" id="pdf_file" name="pdf_file" accept=".pdf" required>
+                            <label for="pdf_file" class="file-upload-label">
+                                <div class="upload-icon">📄</div>
+                                <div class="upload-text">Choose PDF File</div>
+                                <div class="upload-subtext">Only PDF format accepted</div>
+                            </label>
+                            <div class="file-info" id="pdfFileInfo" style="display: none;">
+                                <div class="file-name" id="pdfFileName"></div>
+                                <div class="file-size" id="pdfFileSize"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="picture_file">Book Picture <span class="optional-label">(Optional)</span>:</label>
+                        <div class="file-upload-container">
+                            <input type="file" id="picture_file" name="picture_file" accept="image/*">
+                            <label for="picture_file" class="file-upload-label picture-upload">
+                                <div class="upload-icon">🖼️</div>
+                                <div class="upload-text">Choose Book Cover Image</div>
+                                <div class="upload-subtext">Optional - JPG, PNG, GIF accepted</div>
+                            </label>
+                            <div class="file-info" id="pictureFileInfo" style="display: none;">
+                                <div class="file-name" id="pictureFileName"></div>
+                                <div class="file-size" id="pictureFileSize"></div>
+                                <div class="image-preview" id="imagePreview"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="title">Title of Book:</label>
+                        <input type="text" id="title" name="title" required placeholder="Enter book title">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="description">Description:</label>
+                        <textarea id="description" name="description" rows="4" placeholder="Enter book description, summary, or learning objectives..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="grade">Grade:</label>
+                        <select id="grade" name="grade" required>
+                            <option value="">Select Grade Level</option>
+                            <option value="Grade 7">Grade 7</option>
+                            <option value="Grade 8">Grade 8</option>
+                            <option value="Grade 9">Grade 9</option>
+                            <option value="Grade 10">Grade 10</option>
+                            <option value="Grade 11">Grade 11</option>
+                            <option value="Grade 12">Grade 12</option>
+                            <option value="ALS 11">ALS 11</option>
+                            <option value="ALS 12">ALS 12</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="submit-btn" id="submitBtn">
+                        <span class="btn-text">🚀 Upload Book</span>
+                        <span class="loading-text" style="display: none;">⏳ Uploading...</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // PDF file upload preview
+        document.getElementById('pdf_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileInfo = document.getElementById('pdfFileInfo');
+            const fileName = document.getElementById('pdfFileName');
+            const fileSize = document.getElementById('pdfFileSize');
+            const uploadText = document.querySelector('label[for="pdf_file"] .upload-text');
+            const uploadSubtext = document.querySelector('label[for="pdf_file"] .upload-subtext');
+
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+                fileInfo.style.display = 'block';
+                uploadText.textContent = 'Change PDF File';
+                uploadSubtext.textContent = 'Click to select different PDF';
+            } else {
+                fileInfo.style.display = 'none';
+                uploadText.textContent = 'Choose PDF File';
+                uploadSubtext.textContent = 'Only PDF format accepted';
+            }
+        });
+
+        // Picture file upload preview
+        document.getElementById('picture_file').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            const fileInfo = document.getElementById('pictureFileInfo');
+            const fileName = document.getElementById('pictureFileName');
+            const fileSize = document.getElementById('pictureFileSize');
+            const imagePreview = document.getElementById('imagePreview');
+            const uploadText = document.querySelector('label[for="picture_file"] .upload-text');
+            const uploadSubtext = document.querySelector('label[for="picture_file"] .upload-subtext');
+
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = (file.size / (1024 * 1024)).toFixed(1) + ' MB';
+
+                // Show image preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    imagePreview.innerHTML = '<img src="' + e.target.result + '" alt="Preview" style="max-width: 200px; max-height: 150px; border-radius: 5px; margin-top: 10px;">';
+                };
+                reader.readAsDataURL(file);
+
+                fileInfo.style.display = 'block';
+                uploadText.textContent = 'Change Image';
+                uploadSubtext.textContent = 'Click to select different image';
+            } else {
+                fileInfo.style.display = 'none';
+                imagePreview.innerHTML = '';
+                uploadText.textContent = 'Choose Book Cover Image';
+                uploadSubtext.textContent = 'Optional - JPG, PNG, GIF accepted';
+            }
+        });
+
+        // Form submission with loading state
+        document.getElementById('bookForm').addEventListener('submit', function() {
+            const submitBtn = document.getElementById('submitBtn');
+            const btnText = document.querySelector('.btn-text');
+            const loadingText = document.querySelector('.loading-text');
+
+            submitBtn.disabled = true;
+            btnText.style.display = 'none';
+            loadingText.style.display = 'inline';
+
+            // Update loading message for large files
+            setTimeout(function() {
+                if (submitBtn.disabled) {
+                    loadingText.textContent = '⏳ Processing files, please wait...';
+                }
+            }, 5000);
+        });
+    </script>
+</body>
+</html>
