@@ -8,7 +8,10 @@ Admin
 - Contact Us
 
 Student
-- Can View
+- Homepage (Done, can add features)
+- Quiz (Done, can add features)
+- Activity (Done, can add features)
+- Worksheets (Done, can add features)
 
 Other:
 - Homepage (Done, can add features)

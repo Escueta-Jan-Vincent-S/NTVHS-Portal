@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Activities</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_content.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Student Portal</h1>
+                <p>Learn • Explore • Achieve</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('student_homepage') }}" class="back-btn">🏠 Back to Dashboard</a>
+            <a href="{{ url_for('login') }}" class="logout-btn">🚪 Exit</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h2>🎯 Available Activities</h2>
+            <p>Click on any activity to start working</p>
+        </div>
+
+        <div class="content-container">
+            {% if activities %}
+                <div class="items-grid">
+                    {% for activity in activities %}
+                    <a href="{{ activity.upload_link }}" target="_blank" class="item-card activity-card">
+                        <div class="card-header">
+                            <div class="card-icon">🎯</div>
+                            <span class="card-badge">{{ activity.grade }}</span>
+                        </div>
+
+                        <div class="card-content">
+                            <h3 class="card-title">{{ activity.name }}</h3>
+
+                            {% if activity.professor %}
+                            <div class="card-info">
+                                <span class="info-icon">👨‍🏫</span>
+                                <span class="info-text">{{ activity.professor }}</span>
+                            </div>
+                            {% endif %}
+
+                            {% if activity.end_date %}
+                            <div class="card-info deadline">
+                                <span class="info-icon">⏰</span>
+                                <span class="info-text">Due: {{ activity.end_date | replace('T', ' at ') }}</span>
+                            </div>
+                            {% else %}
+                            <div class="card-info no-deadline">
+                                <span class="info-icon">✨</span>
+                                <span class="info-text">No deadline</span>
+                            </div>
+                            {% endif %}
+
+                            <div class="card-info">
+                                <span class="info-icon">📅</span>
+                                <span class="info-text">Posted: {{ activity.created_at }}</span>
+                            </div>
+                        </div>
+
+                        <div class="card-footer">
+                            <span class="take-quiz-btn">Start Activity →</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-content">
+                    <div class="no-content-icon">🎯</div>
+                    <h3>No Activities Available</h3>
+                    <p>There are no activities available at the moment. Check back later!</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Laguna State Polytechnic University - NTVHS</p>
+    </footer>
+</body>
+</html>
