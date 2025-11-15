@@ -3,7 +3,7 @@ Admin
 - Manage Activity (Done, can add features)
 - Manage Videos (Done, can add features)
 - Manage Worksheets (Done, can add features)
-- Manage Library
+- Manage Library (Done, can add features)
 - Announcement
 - Contact Us
 
@@ -19,15 +19,3 @@ Recommendations:
 - Add text shadows to all of the text
 
 FIX:
-
-command:
-we will do the library management, but this time it is the same as video but its a full of books.
-
-So, the admin will fill this
-* Title of book
-* Description
-* Grade
-* Upload pdf
-* Picture (optional)
-
-so in the view thingy you will show the picture if they uploaded it, and if not, just put no picture

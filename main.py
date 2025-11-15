@@ -599,6 +599,75 @@ def download_book(book_id):
         return redirect(url_for('library_books'))
 
 
+# ==================== STUDENT ROUTES ====================
+@app.route("/student_homepage")
+def student_homepage():
+    """Student homepage - shows all available content sections"""
+    # Get counts for each content type
+    quizzes = get_all_items('quizzes')
+    activities = get_all_items('activities')
+    worksheets = get_all_items('worksheets')
+    videos = get_all_items('videos')
+    books = get_all_items('library')
+
+    counts = {
+        'quizzes': len(quizzes),
+        'activities': len(activities),
+        'worksheets': len(worksheets),
+        'videos': len(videos),
+        'books': len(books)
+    }
+
+    return render_template("student_homepage.html", counts=counts)
+
+
+# ==================== STUDENT CONTENT VIEW ROUTES ====================
+@app.route("/student/quizzes")
+def student_quizzes():
+    """View available quizzes for student"""
+    quizzes = get_all_items('quizzes')
+    return render_template("student_quizzes.html", quizzes=quizzes)
+
+
+@app.route("/student/activities")
+def student_activities():
+    """View available activities for student"""
+    activities = get_all_items('activities')
+    return render_template("student_activities.html", activities=activities)
+
+
+@app.route("/student/worksheets")
+def student_worksheets():
+    """View available worksheets for student"""
+    worksheets = get_all_items('worksheets')
+    return render_template("student_worksheets.html", worksheets=worksheets)
+
+
+@app.route("/student/videos")
+def student_videos():
+    """View available videos for student"""
+    search = request.args.get('search')
+
+    if search:
+        videos = search_videos_by_title(search)
+    else:
+        videos = get_all_items('videos')
+
+    return render_template("student_videos.html", videos=videos)
+
+
+@app.route("/student/library")
+def student_library():
+    """View available library books for student"""
+    search = request.args.get('search')
+
+    if search:
+        books = search_library_books_by_title(search)
+    else:
+        books = get_all_items('library')
+
+    return render_template("student_library.html", books=books)
+
 if __name__ == "__main__":
     # Initialize database on startup
     init_database()

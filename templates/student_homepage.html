@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Student Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_homepage.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Student Portal</h1>
+                <p>Learn • Explore • Achieve</p>
+            </div>
+        </div>
+
+        <div class="user-section">
+            <span class="welcome-text">👋 Welcome, Student!</span>
+            <a href="{{ url_for('login') }}" class="back-btn">🏠 Back to Home</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="welcome-banner">
+            <h2>🎓 Your Learning Dashboard</h2>
+            <p>Access your quizzes, activities, videos, and learning materials all in one place</p>
+        </div>
+
+        <div class="dashboard-container">
+            <div class="dashboard-grid">
+                <div class="dashboard-card quiz-card">
+                    <div class="card-icon">📝</div>
+                    <div class="card-title">Quizzes</div>
+                    <div class="card-count">{{ counts.quizzes }} Available</div>
+                    <div class="card-description">Take quizzes and test your knowledge on various subjects and topics.</div>
+                    <a href="{{ url_for('student_quizzes') }}" class="card-button">View Quizzes</a>
+                </div>
+
+                <div class="dashboard-card activity-card">
+                    <div class="card-icon">🎯</div>
+                    <div class="card-title">Activities</div>
+                    <div class="card-count">{{ counts.activities }} Available</div>
+                    <div class="card-description">Complete interactive activities and assignments to enhance your learning.</div>
+                    <a href="{{ url_for('student_activities') }}" class="card-button">View Activities</a>
+                </div>
+
+                <div class="dashboard-card library-card">
+                    <div class="card-icon">📚</div>
+                    <div class="card-title">Library</div>
+                    <div class="card-count">{{ counts.books }} Books</div>
+                    <div class="card-description">Browse and read digital books, references, and study materials.</div>
+                    <a href="{{ url_for('student_library') }}" class="card-button">Browse Library</a>
+                </div>
+
+                <div class="dashboard-card video-card">
+                    <div class="card-icon">🎬</div>
+                    <div class="card-title">Videos</div>
+                    <div class="card-count">{{ counts.videos }} Videos</div>
+                    <div class="card-description">Watch educational videos and multimedia content to support your studies.</div>
+                    <a href="{{ url_for('student_videos') }}" class="card-button">Watch Videos</a>
+                </div>
+
+                <div class="dashboard-card worksheet-card">
+                    <div class="card-icon">📄</div>
+                    <div class="card-title">Worksheets</div>
+                    <div class="card-count">{{ counts.worksheets }} Available</div>
+                    <div class="card-description">Download worksheets and practice exercises for additional learning.</div>
+                    <a href="{{ url_for('student_worksheets') }}" class="card-button">Get Worksheets</a>
+                </div>
+            </div>
+
+            <div class="announcement-sidebar">
+                <div class="announcement-card">
+                    <div class="card-icon">📢</div>
+                    <div class="card-title">Announcements</div>
+                    <div class="card-count">Coming Soon</div>
+
+                    <div class="announcement-content">
+                        <div class="announcement-placeholder">
+                            <p>📌 No announcements yet</p>
+                            <p class="placeholder-text">Stay tuned! Important updates, reminders, and school events will appear here.</p>
+                        </div>
+
+                        <!-- Future announcements will appear here -->
+                        <!-- Example structure:
+                        <div class="announcement-item">
+                            <div class="announcement-date">Nov 15, 2025</div>
+                            <h4>Sample Announcement Title</h4>
+                            <p>Announcement content goes here...</p>
+                        </div>
+                        -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="quick-tips">
+            <h3>💡 Quick Tips for Students</h3>
+            <div class="tips-grid">
+                <div class="tip-item">
+                    <span class="tip-icon">⏰</span>
+                    <p>Check deadlines regularly for quizzes and activities</p>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">📖</span>
+                    <p>Review library materials before taking quizzes</p>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">🎥</span>
+                    <p>Watch educational videos for better understanding</p>
+                </div>
+                <div class="tip-item">
+                    <span class="tip-icon">✍️</span>
+                    <p>Complete worksheets to practice and improve</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Laguna State Polytechnic University - NTVHS</p>
+        <p>Need help? Contact your teacher or administrator</p>
+    </footer>
+</body>
+</html>
