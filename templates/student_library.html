@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Library</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_library.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Student Portal</h1>
+                <p>Learn • Explore • Achieve</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('student_homepage') }}" class="back-btn">🏠 Back to Dashboard</a>
+            <a href="{{ url_for('login') }}" class="logout-btn">🚪 Exit</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h2>📚 Digital Library</h2>
+            <p>Browse and read educational books and resources</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <form action="{{ url_for('student_library') }}" method="GET">
+                    <input type="text" name="search" class="search-input" placeholder="🔍 Search books by title..." value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="search-btn">Search</button>
+                    {% if request.args.get('search') %}
+                        <a href="{{ url_for('student_library') }}" class="clear-btn">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- Grade Filter Tabs -->
+        <div class="grade-tabs">
+            <a href="{{ url_for('student_library') }}" class="grade-tab {% if not request.args.get('grade') %}active{% endif %}">
+                All Grades
+            </a>
+            <a href="{{ url_for('student_library', grade='Grade 7') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 7' %}active{% endif %}">
+                Grade 7
+            </a>
+            <a href="{{ url_for('student_library', grade='Grade 8') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 8' %}active{% endif %}">
+                Grade 8
+            </a>
+            <a href="{{ url_for('student_library', grade='Grade 9') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 9' %}active{% endif %}">
+                Grade 9
+            </a>
+            <a href="{{ url_for('student_library', grade='Grade 10') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 10' %}active{% endif %}">
+                Grade 10
+            </a>
+            <a href="{{ url_for('student_library', grade='Grade 11') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 11' %}active{% endif %}">
+                Grade 11
+            </a>
+            <a href="{{ url_for('student_library', grade='Grade 12') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 12' %}active{% endif %}">
+                Grade 12
+            </a>
+            <a href="{{ url_for('student_library', grade='ALS 11') }}" class="grade-tab {% if request.args.get('grade') == 'ALS 11' %}active{% endif %}">
+                ALS 11
+            </a>
+            <a href="{{ url_for('student_library', grade='ALS 12') }}" class="grade-tab {% if request.args.get('grade') == 'ALS 12' %}active{% endif %}">
+                ALS 12
+            </a>
+        </div>
+
+        <!-- Books Display -->
+        <div class="books-section">
+            {% if books %}
+                <div class="books-grid">
+                    {% for book in books %}
+                    <div class="book-card">
+                        <div class="book-cover">
+                            {% if book.picture_filename %}
+                                <img src="{{ url_for('static', filename='library/pictures/' + book.picture_filename) }}"
+                                     alt="{{ book.title }}" class="cover-image">
+                            {% else %}
+                                <div class="no-cover">
+                                    <div class="no-cover-icon">📖</div>
+                                    <div class="no-cover-text">No Cover</div>
+                                </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="book-info">
+                            <h3 class="book-title">{{ book.title }}</h3>
+                            <span class="book-grade">{{ book.grade }}</span>
+
+                            {% if book.description %}
+                            <p class="book-description">{{ book.description }}</p>
+                            {% endif %}
+
+                            <div class="book-meta">
+                                <span>📅 Added: {{ book.created_at.split()[0] if book.created_at else 'N/A' }}</span>
+                                <span>📊 {{ (book.file_size / (1024 * 1024))|round(1) }} MB</span>
+                            </div>
+
+                            <div class="book-actions">
+                                <a href="{{ url_for('static', filename='library/pdfs/' + book.pdf_filename) }}"
+                                   target="_blank" class="btn-action btn-view">
+                                    👁️ View Book
+                                </a>
+                                <a href="{{ url_for('download_book', book_id=book.id) }}" class="btn-action btn-download">
+                                    📥 Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-content">
+                    <div class="no-content-icon">📚</div>
+                    <h3>No Books Available</h3>
+                    {% if request.args.get('search') %}
+                        <p>No books found matching "{{ request.args.get('search') }}"</p>
+                        <a href="{{ url_for('student_library') }}" class="back-link">← Back to all books</a>
+                    {% elif request.args.get('grade') %}
+                        <p>No books available for {{ request.args.get('grade') }}</p>
+                        <a href="{{ url_for('student_library') }}" class="back-link">← View all grades</a>
+                    {% else %}
+                        <p>There are no books in the library yet. Check back later!</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Laguna State Polytechnic University - NTVHS</p>
+    </footer>
+</body>
+</html>

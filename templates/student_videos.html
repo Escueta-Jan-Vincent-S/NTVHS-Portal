@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NTVHS Portal - Videos</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/logo.png') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/student_videos.css') }}">
+</head>
+<body>
+    <div class="header">
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/logo.png') }}" alt="NTVHS Logo">
+            <div class="brand-info">
+                <h1>NTVHS Student Portal</h1>
+                <p>Learn • Explore • Achieve</p>
+            </div>
+        </div>
+
+        <div class="nav-section">
+            <a href="{{ url_for('student_homepage') }}" class="back-btn">🏠 Back to Dashboard</a>
+            <a href="{{ url_for('login') }}" class="logout-btn">🚪 Exit</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h2>🎬 Educational Videos</h2>
+            <p>Watch educational videos to enhance your learning</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-container">
+                <form action="{{ url_for('student_videos') }}" method="GET">
+                    <input type="text" name="search" class="search-input" placeholder="🔍 Search videos by title..." value="{{ request.args.get('search', '') }}">
+                    <button type="submit" class="search-btn">Search</button>
+                    {% if request.args.get('search') %}
+                        <a href="{{ url_for('student_videos') }}" class="clear-btn">Clear</a>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
+
+        <!-- Grade Filter Tabs -->
+        <div class="grade-tabs">
+            <a href="{{ url_for('student_videos') }}" class="grade-tab {% if not request.args.get('grade') %}active{% endif %}">
+                All Grades
+            </a>
+            <a href="{{ url_for('student_videos', grade='Grade 7') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 7' %}active{% endif %}">
+                Grade 7
+            </a>
+            <a href="{{ url_for('student_videos', grade='Grade 8') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 8' %}active{% endif %}">
+                Grade 8
+            </a>
+            <a href="{{ url_for('student_videos', grade='Grade 9') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 9' %}active{% endif %}">
+                Grade 9
+            </a>
+            <a href="{{ url_for('student_videos', grade='Grade 10') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 10' %}active{% endif %}">
+                Grade 10
+            </a>
+            <a href="{{ url_for('student_videos', grade='Grade 11') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 11' %}active{% endif %}">
+                Grade 11
+            </a>
+            <a href="{{ url_for('student_videos', grade='Grade 12') }}" class="grade-tab {% if request.args.get('grade') == 'Grade 12' %}active{% endif %}">
+                Grade 12
+            </a>
+            <a href="{{ url_for('student_videos', grade='ALS 11') }}" class="grade-tab {% if request.args.get('grade') == 'ALS 11' %}active{% endif %}">
+                ALS 11
+            </a>
+            <a href="{{ url_for('student_videos', grade='ALS 12') }}" class="grade-tab {% if request.args.get('grade') == 'ALS 12' %}active{% endif %}">
+                ALS 12
+            </a>
+        </div>
+
+        <!-- Videos Display -->
+        <div class="videos-section">
+            {% if videos %}
+                <div class="videos-grid">
+                    {% for video in videos %}
+                    <div class="video-card">
+                        <div class="video-player">
+                            <video controls preload="metadata" controlsList="nodownload">
+                                <source src="{{ url_for('static', filename='videos/' + video.filename) }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+
+                        <div class="video-info">
+                            <h3 class="video-title">{{ video.title }}</h3>
+                            <span class="video-grade">{{ video.grade }}</span>
+
+                            {% if video.description %}
+                            <p class="video-description">{{ video.description }}</p>
+                            {% endif %}
+
+                            <div class="video-meta">
+                                <span>📅 Added: {{ video.created_at.split()[0] if video.created_at else 'N/A' }}</span>
+                                <span>📊 {{ (video.file_size / (1024 * 1024))|round(1) }} MB</span>
+                            </div>
+
+                            <div class="video-actions">
+                                <button class="btn-action btn-fullscreen" onclick="openFullscreen(this)">
+                                    🖥️ Fullscreen
+                                </button>
+                                <a href="{{ url_for('download_video', video_id=video.id) }}" class="btn-action btn-download">
+                                    📥 Download
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="no-content">
+                    <div class="no-content-icon">🎬</div>
+                    <h3>No Videos Available</h3>
+                    {% if request.args.get('search') %}
+                        <p>No videos found matching "{{ request.args.get('search') }}"</p>
+                        <a href="{{ url_for('student_videos') }}" class="back-link">← Back to all videos</a>
+                    {% elif request.args.get('grade') %}
+                        <p>No videos available for {{ request.args.get('grade') }}</p>
+                        <a href="{{ url_for('student_videos') }}" class="back-link">← View all grades</a>
+                    {% else %}
+                        <p>There are no videos uploaded yet. Check back later!</p>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <footer class="footer">
+        <p>© 2025 Laguna State Polytechnic University - NTVHS</p>
+    </footer>
+
+    <script>
+        // Fullscreen functionality
+        function openFullscreen(btn) {
+            const videoCard = btn.closest('.video-card');
+            const video = videoCard.querySelector('video');
+
+            if (video.requestFullscreen) {
+                video.requestFullscreen();
+            } else if (video.webkitRequestFullscreen) {
+                video.webkitRequestFullscreen();
+            } else if (video.msRequestFullscreen) {
+                video.msRequestFullscreen();
+            }
+        }
+
+        // Auto-pause other videos when one plays
+        document.addEventListener('DOMContentLoaded', function() {
+            const videos = document.querySelectorAll('video');
+
+            videos.forEach(video => {
+                video.addEventListener('play', function() {
+                    videos.forEach(otherVideo => {
+                        if (otherVideo !== video) {
+                            otherVideo.pause();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

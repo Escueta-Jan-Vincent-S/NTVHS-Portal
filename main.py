@@ -647,9 +647,12 @@ def student_worksheets():
 def student_videos():
     """View available videos for student"""
     search = request.args.get('search')
+    grade = request.args.get('grade')
 
     if search:
         videos = search_videos_by_title(search)
+    elif grade:
+        videos = get_videos_by_grade(grade)
     else:
         videos = get_all_items('videos')
 
@@ -660,9 +663,12 @@ def student_videos():
 def student_library():
     """View available library books for student"""
     search = request.args.get('search')
+    grade = request.args.get('grade')
 
     if search:
         books = search_library_books_by_title(search)
+    elif grade:
+        books = get_library_books_by_grade(grade)
     else:
         books = get_all_items('library')
 
